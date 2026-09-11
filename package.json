@@ -1,1 +1,12 @@
-
+{
+  "name": "stocklana-baskets",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "app",
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "anchor test"
+  }
+}
