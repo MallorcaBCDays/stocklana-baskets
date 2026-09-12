@@ -1,13 +1,17 @@
+[toolchain]
+
 [features]
-seeds = false
+resolution = true
 skip-lint = false
 
 [programs.localnet]
-basket_vault = "11111111111111111111111111111111"
+basket_vault = "5p7G79qSFHWFKiqK2LjeMLFWpPPATNxBroZnv8Do3QZB"
 
 [provider]
-cluster = "Localnet"
+cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "npm run test"
+
+[hooks]
