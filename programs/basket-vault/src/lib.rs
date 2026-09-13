@@ -291,9 +291,9 @@ pub mod basket_vault {
         let basket_key =
             basket.key();
 
-        let stablecoin_vault_key =
+        let basket_stablecoin_ata_key =
             ctx.accounts
-                .stablecoin_vault
+                .basket_stablecoin_ata
                 .key();
 
         let constituent_vault_key =
@@ -327,20 +327,20 @@ pub mod basket_vault {
             BasketError::MissingBasketAuthority
         );
 
-        let stablecoin_vault_present =
+        let basket_stablecoin_ata_present =
             ctx.remaining_accounts
                 .iter()
                 .any(
                     |account| {
                         *account.key
-                            == stablecoin_vault_key
+                            == basket_stablecoin_ata_key
                             && account.is_writable
                     }
                 );
 
         require!(
-            stablecoin_vault_present,
-            BasketError::MissingStablecoinVault
+            basket_stablecoin_ata_present,
+            BasketError::MissingBasketStablecoinAta
         );
 
         let constituent_vault_present =
@@ -362,6 +362,11 @@ pub mod basket_vault {
         let stablecoin_balance_before =
             ctx.accounts
                 .stablecoin_vault
+                .amount;
+
+        let basket_stablecoin_ata_balance_before =
+            ctx.accounts
+                .basket_stablecoin_ata
                 .amount;
 
         let constituent_balance_before =
@@ -389,8 +394,13 @@ pub mod basket_vault {
         );
 
         msg!(
-            "Stablecoin balance before: {}",
+            "Stablecoin vault balance before: {}",
             stablecoin_balance_before
+        );
+
+        msg!(
+            "Basket stablecoin ATA balance before: {}",
+            basket_stablecoin_ata_balance_before
         );
 
         msg!(
@@ -471,6 +481,57 @@ pub mod basket_vault {
                 &bump,
             ]];
 
+        /*
+         * Stocklana keeps deposited stablecoin in
+         * its internal stablecoin vault.
+         *
+         * Jupiter expects the Basket PDA's normal
+         * stablecoin token account as the swap
+         * source, so stage only this swap's maximum
+         * input there immediately before the CPI.
+         */
+
+        let stage_accounts =
+            TransferChecked {
+                from:
+                    ctx.accounts
+                        .stablecoin_vault
+                        .to_account_info(),
+
+                mint:
+                    ctx.accounts
+                        .stablecoin_mint
+                        .to_account_info(),
+
+                to:
+                    ctx.accounts
+                        .basket_stablecoin_ata
+                        .to_account_info(),
+
+                authority:
+                    basket
+                        .to_account_info(),
+            };
+
+        let stage_context =
+            CpiContext::new(
+                ctx.accounts
+                    .token_program
+                    .key(),
+                stage_accounts,
+            )
+            .with_signer(
+                signer_seeds
+            );
+
+        token_interface::transfer_checked(
+            stage_context,
+            input_amount,
+            ctx.accounts
+                .stablecoin_mint
+                .decimals,
+        )?;
+
         invoke_signed(
             &jupiter_instruction,
             &account_infos,
@@ -480,21 +541,21 @@ pub mod basket_vault {
         /*
          * Jupiter CPI has returned successfully.
          *
-         * Reload both vaults so that we see the
-         * balances after Jupiter modified them.
+         * Reload the Jupiter source and destination
+         * accounts before measuring the swap.
          */
 
         ctx.accounts
-            .stablecoin_vault
+            .basket_stablecoin_ata
             .reload()?;
 
         ctx.accounts
             .constituent_vault
             .reload()?;
 
-        let stablecoin_balance_after =
+        let basket_stablecoin_ata_balance_after_swap =
             ctx.accounts
-                .stablecoin_vault
+                .basket_stablecoin_ata
                 .amount;
 
         let constituent_balance_after =
@@ -502,26 +563,39 @@ pub mod basket_vault {
                 .constituent_vault
                 .amount;
 
-        require!(
-            stablecoin_balance_after
-                <= stablecoin_balance_before,
-            BasketError::InvalidStablecoinBalanceChange
-        );
-
-        require!(
-            constituent_balance_after
-                >= constituent_balance_before,
-            BasketError::InvalidConstituentBalanceChange
-        );
-
-        let spent_amount =
-            stablecoin_balance_before
-                .checked_sub(
-                    stablecoin_balance_after
+        let staged_source_balance =
+            basket_stablecoin_ata_balance_before
+                .checked_add(
+                    input_amount
                 )
                 .ok_or(
                     BasketError::MathOverflow
                 )?;
+
+        require!(
+            basket_stablecoin_ata_balance_after_swap
+                <= staged_source_balance,
+            BasketError::InvalidBasketStablecoinAtaBalance
+        );
+
+        let spent_amount =
+            staged_source_balance
+                .checked_sub(
+                    basket_stablecoin_ata_balance_after_swap
+                )
+                .ok_or(
+                    BasketError::MathOverflow
+                )?;
+
+        require!(
+            spent_amount > 0,
+            BasketError::ZeroSwapInputSpent
+        );
+
+        require!(
+            spent_amount <= input_amount,
+            BasketError::SwapSpentTooMuch
+        );
 
         let received_amount =
             constituent_balance_after
@@ -532,24 +606,107 @@ pub mod basket_vault {
                     BasketError::MathOverflow
                 )?;
 
+        require!(
+            constituent_balance_after
+                >= constituent_balance_before,
+            BasketError::InvalidConstituentBalanceChange
+        );
+
         /*
-         * Critical protection:
-         *
-         * Even if Jupiter instruction data
-         * contains a larger input amount than
-         * the outer instruction declared,
-         * this check causes the entire
-         * transaction to revert.
+         * If Jupiter used less than the staged
+         * maximum input, return the unused amount
+         * to Stocklana's internal stablecoin vault.
          */
 
+        let unused_amount =
+            input_amount
+                .checked_sub(
+                    spent_amount
+                )
+                .ok_or(
+                    BasketError::MathOverflow
+                )?;
+
+        if unused_amount > 0 {
+            let refund_accounts =
+                TransferChecked {
+                    from:
+                        ctx.accounts
+                            .basket_stablecoin_ata
+                            .to_account_info(),
+
+                    mint:
+                        ctx.accounts
+                            .stablecoin_mint
+                            .to_account_info(),
+
+                    to:
+                        ctx.accounts
+                            .stablecoin_vault
+                            .to_account_info(),
+
+                    authority:
+                        basket
+                            .to_account_info(),
+                };
+
+            let refund_context =
+                CpiContext::new(
+                    ctx.accounts
+                        .token_program
+                        .key(),
+                    refund_accounts,
+                )
+                .with_signer(
+                    signer_seeds
+                );
+
+            token_interface::transfer_checked(
+                refund_context,
+                unused_amount,
+                ctx.accounts
+                    .stablecoin_mint
+                    .decimals,
+            )?;
+        }
+
+        ctx.accounts
+            .stablecoin_vault
+            .reload()?;
+
+        ctx.accounts
+            .basket_stablecoin_ata
+            .reload()?;
+
+        let stablecoin_balance_after =
+            ctx.accounts
+                .stablecoin_vault
+                .amount;
+
+        let basket_stablecoin_ata_balance_final =
+            ctx.accounts
+                .basket_stablecoin_ata
+                .amount;
+
+        let expected_stablecoin_balance_after =
+            stablecoin_balance_before
+                .checked_sub(
+                    spent_amount
+                )
+                .ok_or(
+                    BasketError::MathOverflow
+                )?;
+
         require!(
-            spent_amount > 0,
-            BasketError::ZeroSwapInputSpent
+            stablecoin_balance_after
+                == expected_stablecoin_balance_after,
+            BasketError::InvalidStablecoinBalanceChange
         );
 
         require!(
-            spent_amount <= input_amount,
-            BasketError::SwapSpentTooMuch
+            basket_stablecoin_ata_balance_final
+                == basket_stablecoin_ata_balance_before,
+            BasketError::InvalidBasketStablecoinAtaBalance
         );
 
         /*
@@ -572,6 +729,11 @@ pub mod basket_vault {
         msg!(
             "Stablecoin spent: {}",
             spent_amount
+        );
+
+        msg!(
+            "Unused stablecoin returned: {}",
+            unused_amount
         );
 
         msg!(
@@ -1212,6 +1374,18 @@ pub struct ExecuteConstituentSwap<'info> {
             TokenAccount
         >,
 
+    #[account(
+        mut,
+        token::mint = stablecoin_mint,
+        token::authority = basket,
+        token::token_program = token_program
+    )]
+    pub basket_stablecoin_ata:
+        InterfaceAccount<
+            'info,
+            TokenAccount
+        >,
+
     pub constituent_mint:
         InterfaceAccount<
             'info,
@@ -1573,6 +1747,16 @@ pub enum BasketError {
         "Jupiter swap output was below the required minimum."
     )]
     MinimumOutNotMet,
+
+    #[msg(
+        "Jupiter account list does not contain the writable Basket stablecoin ATA."
+    )]
+    MissingBasketStablecoinAta,
+
+    #[msg(
+        "Basket stablecoin ATA balance changed unexpectedly."
+    )]
+    InvalidBasketStablecoinAtaBalance,
 }
 
 #[cfg(test)]

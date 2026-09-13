@@ -795,6 +795,13 @@ describe("basket-vault", () => {
           constituentIndex
         );
 
+      const basketStablecoinAta =
+        getAssociatedTokenAddressSync(
+          stablecoinMint,
+          basketPda,
+          true
+        );
+
       const constituents = [
         {
           mint:
@@ -925,6 +932,23 @@ describe("basket-vault", () => {
           createBasketTokenAccountTx
         );
 
+      const createBasketStablecoinAtaTx =
+        new anchor.web3
+          .Transaction()
+          .add(
+            createAssociatedTokenAccountInstruction(
+              creator,
+              basketStablecoinAta,
+              basketPda,
+              stablecoinMint
+            )
+          );
+
+      await provider
+        .sendAndConfirm(
+          createBasketStablecoinAtaTx
+        );
+
       await program.methods
         .depositAndMint(
           new anchor.BN(
@@ -991,6 +1015,8 @@ describe("basket-vault", () => {
 
             stablecoinVault:
               stablecoinVaultPda,
+
+            basketStablecoinAta,
 
             constituentMint,
 
