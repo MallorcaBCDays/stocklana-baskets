@@ -3,6 +3,7 @@ import {
   PublicKey,
   SystemProgram,
   Transaction,
+  TransactionInstruction,
 } from "@solana/web3.js";
 
 import {
@@ -89,6 +90,9 @@ type JupiterBuildResponse = {
   }>;
 
   swapInstruction?: JupiterSwapInstruction;
+  setupInstructions?: JupiterSwapInstruction[];
+  cleanupInstruction?: JupiterSwapInstruction | null;
+  otherInstructions?: JupiterSwapInstruction[];
 
   error?: string;
   errorMessage?: string;
@@ -167,6 +171,7 @@ function deriveConstituentVault(
 
 async function getJupiterBuild(
   taker: PublicKey,
+  payer: PublicKey,
   destinationTokenAccount: PublicKey
 ): Promise<JupiterBuildResponse> {
   const params =
@@ -183,8 +188,28 @@ async function getJupiterBuild(
       taker:
         taker.toBase58(),
 
+      payer:
+        payer.toBase58(),
+
+      /*
+       * Stocklana manages WSOL itself. This is critical:
+       * Jupiter must NOT try to wrap native SOL using the
+       * Basket PDA as the payer/signer.
+       */
+      wrapAndUnwrapSol:
+        "false",
+
       destinationTokenAccount:
         destinationTokenAccount.toBase58(),
+
+      /*
+       * Quantum currently reaches its on-chain program on
+       * localnet but fails on cloned mainnet state (0x9).
+       * Exclude it for this local E2E harness so Jupiter
+       * can choose a route that is more practical to clone.
+       */
+      excludeDexes:
+        "Quantum",
 
       maxAccounts:
         MAX_JUPITER_ACCOUNTS.toString(),
@@ -369,9 +394,14 @@ async function plan() {
     "Requesting Jupiter WSOL -> USDC route..."
   );
 
+  console.log(
+    "Excluded DEXes: Quantum"
+  );
+
   const result =
     await getJupiterBuild(
       basketPda,
+      creator,
       constituentVaultPda
     );
 
@@ -464,6 +494,38 @@ async function plan() {
     );
   }
 
+  const setupInstructions =
+    result.setupInstructions ?? [];
+
+  console.log(
+    "Setup instruction count:",
+    setupInstructions.length
+  );
+
+  console.log(
+    "Cleanup instruction:",
+    result.cleanupInstruction
+      ? "present"
+      : "none"
+  );
+
+  const basketSignedSetup =
+    setupInstructions.filter(
+      (instruction) =>
+        instruction.accounts.some(
+          (account) =>
+            account.pubkey === basketPda.toBase58() &&
+            account.isSigner
+        )
+    );
+
+  if (basketSignedSetup.length > 0) {
+    throw new Error(
+      "Jupiter still requires the Basket PDA to sign a setup instruction. " +
+      "wrapAndUnwrapSol=false/payer override did not remove the incompatible setup path."
+    );
+  }
+
   const savedPlan:
     SavedPlan = {
       basketId:
@@ -506,6 +568,49 @@ async function plan() {
   console.log(
     "PLAN COMPLETE - no transaction sent."
   );
+}
+
+function deserializeInstruction(
+  instruction: JupiterSwapInstruction
+): TransactionInstruction {
+  return new TransactionInstruction({
+    programId:
+      new PublicKey(
+        instruction.programId
+      ),
+
+    keys:
+      instruction.accounts.map(
+        (account) => ({
+          pubkey:
+            new PublicKey(
+              account.pubkey
+            ),
+
+          isSigner:
+            account.isSigner,
+
+          isWritable:
+            account.isWritable,
+        })
+      ),
+
+    data:
+      Buffer.from(
+        instruction.data,
+        "base64"
+      ),
+  });
+}
+
+async function accountExists(
+  provider: anchor.AnchorProvider,
+  address: PublicKey
+) {
+  return (
+    await provider.connection
+      .getAccountInfo(address)
+  ) !== null;
 }
 
 async function execute() {
@@ -581,19 +686,64 @@ async function execute() {
 
   const remainingAccounts =
     swapInstruction.accounts.map(
-      (account) => ({
-        pubkey:
+      (account) => {
+        const pubkey =
           new PublicKey(
             account.pubkey
-          ),
+          );
 
-        isWritable:
-          account.isWritable,
+        /*
+         * Jupiter marks the taker (our Basket PDA)
+         * as a signer for the INNER Jupiter instruction.
+         *
+         * The Basket PDA must NOT be a signer on the
+         * OUTER Stocklana transaction because a PDA has
+         * no private key. Rust promotes this account to
+         * signer for the CPI and invoke_signed() supplies
+         * the PDA signature at the correct inner level.
+         */
+        const isBasketPda =
+          pubkey.equals(
+            basketPda
+          );
 
-        isSigner:
-          account.isSigner,
-      })
+        return {
+          pubkey,
+
+          isWritable:
+            account.isWritable,
+
+          isSigner:
+            isBasketPda
+              ? false
+              : account.isSigner,
+        };
+      }
     );
+
+  const unexpectedOuterSigners =
+    remainingAccounts.filter(
+      (account) =>
+        account.isSigner &&
+        !account.pubkey.equals(
+          creator
+        )
+    );
+
+  if (
+    unexpectedOuterSigners.length > 0
+  ) {
+    throw new Error(
+      `Unexpected Jupiter outer signer(s): ${
+        unexpectedOuterSigners
+          .map(
+            (account) =>
+              account.pubkey.toBase58()
+          )
+          .join(", ")
+      }`
+    );
+  }
 
   console.log(
     "Stocklana Jupiter E2E EXECUTE"
@@ -612,146 +762,233 @@ async function execute() {
    * WSOL locally from native SOL without possessing
    * the mainnet USDC mint authority.
    */
-  await program.methods
-    .initializeBasket(
-      "Jupiter E2E Basket",
-      E2E_BASKET_ID,
-      [
-        {
-          mint:
-            USDC_MINT,
+  if (
+    !(await accountExists(
+      provider,
+      basketPda
+    ))
+  ) {
+    await program.methods
+      .initializeBasket(
+        "Jupiter E2E Basket",
+        E2E_BASKET_ID,
+        [
+          {
+            mint:
+              USDC_MINT,
 
-          weightBps:
-            10_000,
-        },
-      ]
-    )
-    .accounts({
-      basket:
-        basketPda,
+            weightBps:
+              10_000,
+          },
+        ]
+      )
+      .accounts({
+        basket:
+          basketPda,
 
-      basketMint:
-        basketMintPda,
+        basketMint:
+          basketMintPda,
 
-      stablecoinMint:
-        WSOL_MINT,
+        stablecoinMint:
+          WSOL_MINT,
 
-      stablecoinVault:
-        stablecoinVaultPda,
+        stablecoinVault:
+          stablecoinVaultPda,
 
-      creator,
+        creator,
 
-      tokenProgram:
-        TOKEN_PROGRAM_ID,
+        tokenProgram:
+          TOKEN_PROGRAM_ID,
 
-      systemProgram:
-        SystemProgram.programId,
-    })
-    .rpc();
+        systemProgram:
+          SystemProgram.programId,
+      })
+      .rpc();
 
-  console.log(
-    "Basket initialized."
-  );
+    console.log(
+      "Basket initialized."
+    );
+  } else {
+    console.log(
+      "Basket already exists - reusing."
+    );
+  }
 
   /*
    * 2. Create the USDC constituent vault.
    */
-  await program.methods
-    .initializeConstituentVault(
-      CONSTITUENT_INDEX
-    )
-    .accounts({
-      basket:
-        basketPda,
+  if (
+    !(await accountExists(
+      provider,
+      constituentVaultPda
+    ))
+  ) {
+    await program.methods
+      .initializeConstituentVault(
+        CONSTITUENT_INDEX
+      )
+      .accounts({
+        basket:
+          basketPda,
 
-      constituentMint:
-        USDC_MINT,
+        constituentMint:
+          USDC_MINT,
 
-      constituentVault:
-        constituentVaultPda,
+        constituentVault:
+          constituentVaultPda,
 
-      payer:
-        creator,
+        payer:
+          creator,
 
-      tokenProgram:
-        TOKEN_PROGRAM_ID,
+        tokenProgram:
+          TOKEN_PROGRAM_ID,
 
-      systemProgram:
-        SystemProgram.programId,
-    })
-    .rpc();
+        systemProgram:
+          SystemProgram.programId,
+      })
+      .rpc();
 
-  console.log(
-    "Constituent vault initialized."
-  );
+    console.log(
+      "Constituent vault initialized."
+    );
+  } else {
+    console.log(
+      "Constituent vault already exists - reusing."
+    );
+  }
 
   /*
    * 3. Create the Basket PDA's normal WSOL ATA.
    *    Jupiter uses this account as its source.
    */
-  const createBasketAtaTx =
-    new Transaction().add(
-      createAssociatedTokenAccountInstruction(
-        creator,
-        basketStablecoinAta,
-        basketPda,
-        WSOL_MINT,
-        TOKEN_PROGRAM_ID
-      )
-    );
-
-  await provider
-    .sendAndConfirm(
-      createBasketAtaTx
-    );
-
-  console.log(
-    "Basket WSOL ATA created."
-  );
-
-  /*
-   * 4. Create and fund the user's WSOL ATA.
-   */
-  const createAndFundUserWsolTx =
-    new Transaction()
-      .add(
+  if (
+    !(await accountExists(
+      provider,
+      basketStablecoinAta
+    ))
+  ) {
+    const createBasketAtaTx =
+      new Transaction().add(
         createAssociatedTokenAccountInstruction(
           creator,
-          userWsolAta,
-          creator,
+          basketStablecoinAta,
+          basketPda,
           WSOL_MINT,
-          TOKEN_PROGRAM_ID
-        )
-      )
-      .add(
-        SystemProgram.transfer({
-          fromPubkey:
-            creator,
-
-          toPubkey:
-            userWsolAta,
-
-          lamports:
-            Number(
-              INPUT_AMOUNT
-            ),
-        })
-      )
-      .add(
-        createSyncNativeInstruction(
-          userWsolAta,
           TOKEN_PROGRAM_ID
         )
       );
 
-  await provider
-    .sendAndConfirm(
-      createAndFundUserWsolTx
-    );
+    await provider
+      .sendAndConfirm(
+        createBasketAtaTx
+      );
 
-  console.log(
-    "User WSOL funded."
-  );
+    console.log(
+      "Basket WSOL ATA created."
+    );
+  } else {
+    console.log(
+      "Basket WSOL ATA already exists - reusing."
+    );
+  }
+
+  /*
+   * 4. Create and fund the user's WSOL ATA.
+   */
+  if (
+    !(await accountExists(
+      provider,
+      userWsolAta
+    ))
+  ) {
+    const createAndFundUserWsolTx =
+      new Transaction()
+        .add(
+          createAssociatedTokenAccountInstruction(
+            creator,
+            userWsolAta,
+            creator,
+            WSOL_MINT,
+            TOKEN_PROGRAM_ID
+          )
+        )
+        .add(
+          SystemProgram.transfer({
+            fromPubkey:
+              creator,
+
+            toPubkey:
+              userWsolAta,
+
+            lamports:
+              Number(
+                INPUT_AMOUNT
+              ),
+          })
+        )
+        .add(
+          createSyncNativeInstruction(
+            userWsolAta,
+            TOKEN_PROGRAM_ID
+          )
+        );
+
+    await provider
+      .sendAndConfirm(
+        createAndFundUserWsolTx
+      );
+
+    console.log(
+      "User WSOL ATA created and funded."
+    );
+  } else {
+    const existingUserWsol =
+      await getAccount(
+        provider.connection,
+        userWsolAta
+      );
+
+    if (
+      existingUserWsol.amount <
+      INPUT_AMOUNT
+    ) {
+      const missing =
+        INPUT_AMOUNT -
+        existingUserWsol.amount;
+
+      const topUpTx =
+        new Transaction()
+          .add(
+            SystemProgram.transfer({
+              fromPubkey:
+                creator,
+
+              toPubkey:
+                userWsolAta,
+
+              lamports:
+                Number(
+                  missing
+                ),
+            })
+          )
+          .add(
+            createSyncNativeInstruction(
+              userWsolAta,
+              TOKEN_PROGRAM_ID
+            )
+          );
+
+      await provider
+        .sendAndConfirm(
+          topUpTx
+        );
+    }
+
+    console.log(
+      "User WSOL ATA ready."
+    );
+  }
 
   /*
    * 5. Fund Stocklana's internal WSOL vault directly.
@@ -761,24 +998,39 @@ async function execute() {
    * 9 decimals, and the existing MVP deposit instruction
    * correctly rejects that decimal mismatch.
    */
-  const fundInternalVaultTx =
-    new Transaction().add(
-      createTransferCheckedInstruction(
-        userWsolAta,
-        WSOL_MINT,
-        stablecoinVaultPda,
-        creator,
-        INPUT_AMOUNT,
-        9,
-        [],
-        TOKEN_PROGRAM_ID
-      )
+  const internalCurrent =
+    await getAccount(
+      provider.connection,
+      stablecoinVaultPda
     );
 
-  await provider
-    .sendAndConfirm(
-      fundInternalVaultTx
-    );
+  if (
+    internalCurrent.amount <
+    INPUT_AMOUNT
+  ) {
+    const missing =
+      INPUT_AMOUNT -
+      internalCurrent.amount;
+
+    const fundInternalVaultTx =
+      new Transaction().add(
+        createTransferCheckedInstruction(
+          userWsolAta,
+          WSOL_MINT,
+          stablecoinVaultPda,
+          creator,
+          missing,
+          9,
+          [],
+          TOKEN_PROGRAM_ID
+        )
+      );
+
+    await provider
+      .sendAndConfirm(
+        fundInternalVaultTx
+      );
+  }
 
   const internalBefore =
     await getAccount(
@@ -814,7 +1066,61 @@ async function execute() {
   );
 
   /*
-   * 6. REAL Stocklana -> Jupiter CPI.
+   * 6. Execute any Jupiter setup instructions.
+   *
+   * Because /build is requested with:
+   *   payer = creator
+   *   wrapAndUnwrapSol = false
+   *
+   * these setup instructions must not require the Basket
+   * PDA as an OUTER signer. If Jupiter ever returns such
+   * an instruction, abort instead of creating an invalid
+   * transaction.
+   */
+  const setupInstructions =
+    result.setupInstructions ?? [];
+
+  for (
+    let index = 0;
+    index < setupInstructions.length;
+    index++
+  ) {
+    const setup =
+      setupInstructions[index];
+
+    const basketSignerRequired =
+      setup.accounts.some(
+        (account) =>
+          account.pubkey ===
+            basketPda.toBase58() &&
+          account.isSigner
+      );
+
+    if (basketSignerRequired) {
+      throw new Error(
+        `Setup instruction ${index} requires Basket PDA outer signature`
+      );
+    }
+
+    const setupTx =
+      new Transaction().add(
+        deserializeInstruction(
+          setup
+        )
+      );
+
+    await provider
+      .sendAndConfirm(
+        setupTx
+      );
+
+    console.log(
+      `Jupiter setup ${index} executed.`
+    );
+  }
+
+  /*
+   * 7. REAL Stocklana -> Jupiter CPI.
    */
   const signature =
     await program.methods
@@ -923,6 +1229,45 @@ async function execute() {
   ) {
     throw new Error(
       "E2E failed: internal WSOL vault did not spend input"
+    );
+  }
+
+  /*
+   * 8. Execute optional Jupiter cleanup if it does not
+   * require the Basket PDA as an outer signer.
+   */
+  if (result.cleanupInstruction) {
+    const cleanupInstruction =
+      result.cleanupInstruction;
+
+    const basketSignerRequired =
+      cleanupInstruction.accounts.some(
+        (account) =>
+          account.pubkey ===
+            basketPda.toBase58() &&
+          account.isSigner
+      );
+
+    if (basketSignerRequired) {
+      throw new Error(
+        "Cleanup instruction requires Basket PDA outer signature"
+      );
+    }
+
+    const cleanupTx =
+      new Transaction().add(
+        deserializeInstruction(
+          cleanupInstruction
+        )
+      );
+
+    await provider
+      .sendAndConfirm(
+        cleanupTx
+      );
+
+    console.log(
+      "Jupiter cleanup executed."
     );
   }
 

@@ -1,3 +1,4 @@
+
 use anchor_lang::{
     prelude::*,
     solana_program::{
@@ -39,6 +40,20 @@ const JUPITER_ROUTE_DISCRIMINATOR: [u8; 8] = [
 const JUPITER_SHARED_ACCOUNTS_ROUTE_DISCRIMINATOR: [u8; 8] = [
     193, 32, 155, 51,
     65, 214, 156, 129,
+];
+
+// Anchor discriminator:
+// sha256("global:route_v2")[0..8]
+const JUPITER_ROUTE_V2_DISCRIMINATOR: [u8; 8] = [
+    187, 100, 250, 204,
+    49, 196, 175, 20,
+];
+
+// Anchor discriminator:
+// sha256("global:shared_accounts_route_v2")[0..8]
+const JUPITER_SHARED_ACCOUNTS_ROUTE_V2_DISCRIMINATOR: [u8; 8] = [
+    209, 152, 83, 147,
+    124, 254, 216, 233,
 ];
 
 #[program]
@@ -1138,6 +1153,10 @@ fn is_allowed_jupiter_instruction(
         == JUPITER_ROUTE_DISCRIMINATOR
         || discriminator
             == JUPITER_SHARED_ACCOUNTS_ROUTE_DISCRIMINATOR
+        || discriminator
+            == JUPITER_ROUTE_V2_DISCRIMINATOR
+        || discriminator
+            == JUPITER_SHARED_ACCOUNTS_ROUTE_V2_DISCRIMINATOR
 }
 
 #[derive(Accounts)]
@@ -1901,6 +1920,42 @@ mod tests {
         let mut data =
             Vec::from(
                 JUPITER_SHARED_ACCOUNTS_ROUTE_DISCRIMINATOR
+            );
+
+        data.extend_from_slice(
+            &[1, 2, 3]
+        );
+
+        assert!(
+            is_allowed_jupiter_instruction(
+                &data
+            )
+        );
+    }
+
+    #[test]
+    fn accepts_jupiter_route_v2_discriminator() {
+        let mut data =
+            Vec::from(
+                JUPITER_ROUTE_V2_DISCRIMINATOR
+            );
+
+        data.extend_from_slice(
+            &[1, 2, 3]
+        );
+
+        assert!(
+            is_allowed_jupiter_instruction(
+                &data
+            )
+        );
+    }
+
+    #[test]
+    fn accepts_jupiter_shared_accounts_route_v2_discriminator() {
+        let mut data =
+            Vec::from(
+                JUPITER_SHARED_ACCOUNTS_ROUTE_V2_DISCRIMINATOR
             );
 
         data.extend_from_slice(
