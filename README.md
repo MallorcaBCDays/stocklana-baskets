@@ -4,6 +4,8 @@
 
 Stocklana Baskets is an Anchor-based Solana program for creating weighted baskets of tokenized assets. A basket creator defines the constituent token mints and their target weights, and users can interact with a basket through a basket share mint.
 
+🎥 **Demo Video:** [Stocklana Baskets — Weighted Tokenized Asset Baskets on Solana](https://youtu.be/jh5KlkgHirs)
+
 The MVP focuses on the core on-chain basket lifecycle:
 
 - deterministic basket creation
