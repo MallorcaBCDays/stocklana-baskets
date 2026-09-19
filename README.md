@@ -6,6 +6,16 @@ Stocklana Baskets is an Anchor-based Solana program for creating weighted basket
 
 🎥 **Demo Video:** [Stocklana Baskets — Weighted Tokenized Asset Baskets on Solana](https://youtu.be/jh5KlkgHirs)
 
+### Experimental Pyth Pricing Prototype
+
+Stocklana also includes an isolated, read-only Pyth pricing prototype for a multi-asset basket using TSLA, QQQ, VOO, and XAU.
+
+The prototype retrieves Pyth market prices and converts basket weights into target dollar values and target asset quantities. It does **not** modify the submitted MVP core or its current simplified 1:1 accounting model.
+
+This demonstrates a path toward future NAV calculation, execution sizing, rebalancing, and portfolio-backed minting and redemption while keeping Stocklana oracle-agnostic.
+
+See: [`experiments/pyth-nav-preview/`](experiments/pyth-nav-preview/)
+
 The MVP focuses on the core on-chain basket lifecycle:
 
 - deterministic basket creation
