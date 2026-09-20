@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { VerifiedLocalProof } from "@/components/VerifiedLocalProof";
+import { RunJuryDemo } from "@/components/RunJuryDemo";
 import {
   deriveBasketInfrastructure,
   STOCKLANA_PROGRAM_ID,
@@ -163,6 +164,10 @@ export default function Home() {
             weighted allocation across tokenized assets.
           </p>
         </section>
+
+        <div className="mb-6">
+          <RunJuryDemo />
+        </div>
 
         <div className="grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)_320px]">
           <aside className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
