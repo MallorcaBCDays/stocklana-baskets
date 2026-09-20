@@ -2,3 +2,6 @@ node_modules
 target/
 test-ledger/
 stocklana-baskets-backup.tar.gz
+
+# Local website deployment archive
+website/stocklanabaskets-site.zip
