@@ -461,165 +461,112 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto max-w-7xl px-6 py-24 lg:px-8">
-        <div className="rounded-[2rem] border border-white/10 bg-white/[0.035] px-6 py-12 text-center sm:px-12 sm:py-16">
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-fuchsia-300/80">Stocklana Baskets</p>
-          <h2 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-            Build the basket. Own the exposure.
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/50">
-            Stocklana Baskets is currently in active prototype development.
-          </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <a
-              href={demoUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full bg-gradient-to-r from-fuchsia-500 to-cyan-400 px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02]"
-            >
-              Watch the Demo
-            </a>
-            <a
-              href={githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              GitHub
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <footer className="relative z-10 border-t border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
-          <p className="max-w-4xl text-xs leading-5 text-white/30">
-            Stocklana Baskets is experimental software under active development. Current prototypes are not
-            production-ready and should not be used with assets you cannot afford to lose. References to tokenized
-            assets, pricing providers, or integrations do not imply endorsement, partnership, or availability in
-            every jurisdiction.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-white/30 sm:flex-row sm:items-center sm:justify-between">
-            <p>© 2026 Stocklana Baskets. Built on Solana.</p>
-            <div className="flex gap-5">
-              <a href={githubUrl} target="_blank" rel="noreferrer" className="transition hover:text-white/70">GitHub</a>
-              <a href={demoUrl} target="_blank" rel="noreferrer" className="transition hover:text-white/70">Demo</a>
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      <section className="relative z-10 mx-auto max-w-7xl px-6 py-24 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.22em] text-cyan-300/80">Architecture</p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Built as infrastructure, not just an interface.
-            </h2>
-            <p className="mt-5 max-w-xl text-base leading-7 text-white/55">
-              The basket itself is the primitive. Composition, weights, custody structure, share issuance,
-              allocation logic, and execution authority live inside the protocol architecture.
-            </p>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-white/45">
-              Pricing and execution layers can evolve independently, so Stocklana does not need to hard-code
-              itself to one oracle, one asset platform, or one execution venue.
-            </p>
-          </div>
-
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.035] p-5 sm:p-7">
-            <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.045] p-5 text-center">
-              <p className="text-xs uppercase tracking-[0.18em] text-white/35">Core primitive</p>
-              <p className="mt-2 text-lg font-semibold">Stocklana Basket</p>
-            </div>
-
-            <div className="mx-auto h-8 w-px bg-gradient-to-b from-cyan-300/50 to-white/10" />
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              {[
-                ["Basket State", "Composition + weights"],
-                ["Basket Shares", "Fungible participation"],
-                ["Custody Vaults", "Deterministic PDAs"],
-              ].map(([title, copy]) => (
-                <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
-                  <p className="text-sm font-semibold text-white/85">{title}</p>
-                  <p className="mt-1 text-xs text-white/35">{copy}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mx-auto h-8 w-px bg-gradient-to-b from-white/10 to-fuchsia-300/40" />
-
-            <div className="rounded-2xl border border-fuchsia-300/15 bg-fuchsia-300/[0.035] p-5 text-center">
-              <p className="text-sm font-semibold">Allocation Engine</p>
-              <p className="mt-1 text-xs text-white/35">Weighted target calculations</p>
-            </div>
-
-            <div className="grid gap-3 pt-6 sm:grid-cols-2">
-              <div className="rounded-2xl border border-fuchsia-300/15 bg-fuchsia-300/[0.035] p-5">
-                <p className="text-xs uppercase tracking-[0.16em] text-fuchsia-200/70">Pricing adapters</p>
-                <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/65">
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Pyth</span>
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">PreStocks</span>
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Future adapters</span>
-                </div>
-              </div>
-              <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.035] p-5">
-                <p className="text-xs uppercase tracking-[0.16em] text-cyan-200/70">Execution layer</p>
-                <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/65">
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Jupiter CPI</span>
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Solana DEXs</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="roadmap" className="relative z-10 mx-auto max-w-7xl px-6 py-24 lg:px-8">
+      <section id="team" className="relative z-10 mx-auto max-w-7xl px-6 py-24 lg:px-8">
         <div className="max-w-3xl">
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-fuchsia-300/80">Roadmap</p>
+          <p className="text-xs font-medium uppercase tracking-[0.22em] text-cyan-300/80">
+            Founding team
+          </p>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-            From prototype to production-grade index infrastructure.
+            Built by a team that already builds together.
           </h2>
           <p className="mt-5 text-base leading-7 text-white/55">
-            The MVP proves the core basket architecture. The next phases focus on economic correctness,
-            automated portfolio maintenance, stronger execution controls, and a user-facing basket builder.
+            Stocklana Baskets is built by Chris, Andre and Bastian — the team behind
+            Mallorca Blockchain SL and Mallorca Blockchain Days. Our work spans
+            blockchain conferences, Bitcoin education, publishing and previous crypto
+            ventures.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-4 lg:grid-cols-5">
-          {[
-            ["Now", "Core MVP", "Basket creation, custody, shares, allocation logic, deposit/redemption and Jupiter CPI architecture."],
-            ["Next", "Real NAV", "Actual constituent balances × verified market prices → basket NAV and share price."],
-            ["Next", "Rebalancing", "Detect allocation drift and calculate the trades required to restore target weights."],
-            ["Next", "Execution", "Production-grade execution with stronger slippage, MEV, settlement and safety controls."],
-            ["Later", "Basket Builder", "A user-facing interface for creating, exploring and managing programmable baskets."],
-          ].map(([phase, title, copy], index) => (
-            <div key={`${phase}-${title}`} className="relative rounded-3xl border border-white/10 bg-white/[0.03] p5">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-xs font-medium uppercase tracking-[0.16em] text-cyan-200/65">{phase}</span>
-                <span className="font-mono text-xs text-white/20">0{index + 1}</span>
+        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          <article className="rounded-[2rem] border border-fuchsia-300/15 bg-gradient-to-br from-fuchsia-400/[0.06] via-white/[0.025] to-transparent p-7">
+            <div className="flex items-center gap-4">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-fuchsia-300/20 bg-fuchsia-300/10 text-lg font-semibold text-fuchsia-200">
+                C
               </div>
-              <h3 className="mt-6 text-lg font-semibold">{title}</h3>
-              <p className="mt-3 text-sm leading-6 text-white/45">{copy}</p>
+              <div>
+                <h3 className="text-xl font-semibold">Chris</h3>
+                <p className="mt-1 text-xs uppercase tracking-[0.14em] text-fuchsia-200/65">
+                  Co-Founder · Product, Protocol & Strategy
+                </p>
+              </div>
             </div>
-          ))}
-        </div>
-      </section>
 
-      <section className="relative z-10 mx-auto max-w-7xl px-6 py-20 lg:px-8">
-        <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-fuchsia-500/[0.08] via-white/[0.035] to-cyan-400/[0.08] p-8 sm:p-12">
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-cyan-300/80">The bigger vision</p>
-          <h2 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight sm:text-5xl">
-            An index layer for tokenized markets.
-          </h2>
-          <p className="mt-6 max-w-3xl text-base leading-7 text-white/55 sm:text-lg">
-            As more equities, private-market assets, commodities, funds and other real-world assets move on-chain,
-            users should not need to manage every asset individually.
+            <p className="mt-6 text-sm leading-6 text-white/50">
+              Chris initiated Stocklana Baskets and has led the project from its first
+              protocol concept through the current MVP. He focuses on product direction,
+              protocol strategy and external representation.
+            </p>
+
+            <p className="mt-4 text-sm leading-6 text-white/40">
+              Previously, he co-founded Singapore-based Cryptonaut, a crypto software
+              venture later acquired by Portal to Bitcoin. His background spans
+              entrepreneurship, crypto products, public affairs and business, including
+              a B.A. focused on lobbying and renewable energy in Brussels and later MBA
+              studies.
+            </p>
+          </article>
+
+          <article className="rounded-[2rem] border border-cyan-300/15 bg-gradient-to-br from-cyan-400/[0.06] via-white/[0.025] to-transparent p-7">
+            <div className="flex items-center gap-4">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 text-lg font-semibold text-cyan-200">
+                A
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Andre</h3>
+                <p className="mt-1 text-xs uppercase tracking-[0.14em] text-cyan-200/65">
+                  Co-Founder · Engineering & Technology
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-6 text-sm leading-6 text-white/50">
+              Andre is a software developer and entrepreneur who brings strong technical
+              and entrepreneurial experience to Stocklana. He focuses on engineering,
+              architecture and the evolution of the protocol beyond the current MVP.
+            </p>
+
+            <p className="mt-4 text-sm leading-6 text-white/40">
+              His academic background is in industrial engineering and includes a period
+              of study at ETH Zürich.
+            </p>
+          </article>
+
+          <article className="rounded-[2rem] border border-white/10 bg-white/[0.035] p-7">
+            <div className="flex items-center gap-4">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/[0.06] text-lg font-semibold text-white/85">
+                B
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Bastian</h3>
+                <p className="mt-1 text-xs uppercase tracking-[0.14em] text-white/50">
+                  Co-Founder · Operations & Partnerships
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-6 text-sm leading-6 text-white/50">
+              Bastian brings operational leadership and real-world management experience
+              to Stocklana. Alongside his work with Mallorca Blockchain Days, he works
+              in hotel management in Mallorca.
+            </p>
+
+            <p className="mt-4 text-sm leading-6 text-white/40">
+              His focus is operations, partnerships, events and helping turn the protocol
+              into a sustainable business.
+            </p>
+          </article>
+        </div>
+
+        <div className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.025] p-6 sm:p-8">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-300/70">
+            More than a hackathon team
           </p>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-white/55 sm:text-lg">
-            Stocklana Baskets aims to provide the infrastructure for transparent, programmable portfolios
-            that can be embedded across the Solana ecosystem.
+          <p className="mt-4 max-w-4xl text-sm leading-7 text-white/50 sm:text-base">
+            Through Mallorca Blockchain Days, Bitcoin education and publishing, the team
+            has built a broad network across the Bitcoin and wider crypto ecosystem —
+            including founders, developers and industry professionals. That gives
+            Stocklana access to experienced builders, potential collaborators and
+            additional technical talent as the project grows.
           </p>
         </div>
       </section>
@@ -671,6 +618,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
     </main>
   );
 }
