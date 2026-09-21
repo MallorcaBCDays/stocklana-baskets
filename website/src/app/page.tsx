@@ -1,5 +1,6 @@
 const demoUrl = "https://youtu.be/jh5KlkgHirs";
 const githubUrl = "https://github.com/MallorcaBCDays/stocklana-baskets";
+const interactiveDemoUrl = "https://demo.stocklanabaskets.com";
 
 export default function Home() {
   return (
@@ -58,12 +59,12 @@ export default function Home() {
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <a
-              href={demoUrl}
+              href={interactiveDemoUrl}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-fuchsia-500 to-cyan-400 px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02]"
             >
-              Explore the Demo
+              Try Interactive Demo →
             </a>
             <a
               href={githubUrl}
