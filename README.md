@@ -1,36 +1,69 @@
 # Stocklana Baskets
 
-**Composable on-chain index baskets for tokenized assets on Solana.**
+**Programmable on-chain index baskets for tokenized assets on Solana.**
 
-Stocklana Baskets is an Anchor-based Solana program for creating weighted baskets of tokenized assets. A basket creator defines the constituent token mints and their target weights, and users can interact with a basket through a basket share mint.
+Stocklana Baskets is an Anchor-based protocol for transparent weighted baskets of tokenized assets with deterministic custody, fungible basket shares, weighted allocation logic, and Jupiter-powered execution infrastructure.
 
-🎥 **Demo Video:** [Stocklana Baskets — Weighted Tokenized Asset Baskets on Solana](https://youtu.be/jh5KlkgHirs)
+## Start here
 
-### Experimental Pyth Pricing Prototype
+- **Interactive Demo:** https://demo.stocklanabaskets.com
+- **Website:** https://stocklanabaskets.com
+- **Main Demo Video:** https://youtu.be/jh5KlkgHirs
+- **GitHub:** https://github.com/MallorcaBCDays/stocklana-baskets
 
-Stocklana also includes an isolated, read-only Pyth pricing prototype for a multi-asset basket using TSLA, QQQ, VOO, and XAU.
+> The interactive web demo does not submit new transactions. It replays and visualizes results from a verified successful run of the Stocklana Anchor program against a local Solana validator.
 
-The prototype retrieves Pyth market prices and converts basket weights into target dollar values and target asset quantities. It does **not** modify the submitted MVP core or its current simplified 1:1 accounting model.
+## Program ID
 
-This demonstrates a path toward future NAV calculation, execution sizing, rebalancing, and portfolio-backed minting and redemption while keeping Stocklana oracle-agnostic.
+`5p7G79qSFHWFKiqK2LjeMLFWpPPATNxBroZnv8Do3QZB`
 
-See: [`experiments/pyth-nav-preview/`](experiments/pyth-nav-preview/)
+## Core MVP
 
-The MVP focuses on the core on-chain basket lifecycle:
-
-- deterministic basket creation
-- weighted constituent definitions
-- basket share minting and redemption
-- stablecoin / input-asset custody
-- per-constituent vaults
-- allocation previews
+- 1–10 weighted constituents
+- deterministic Basket PDA and custody vaults
+- dedicated basket share mint
+- deposit and redemption lifecycle
+- weighted allocation previews
 - Jupiter CPI execution plumbing
-- safety checks around Jupiter routes, accounts, balances and slippage
+- 7/7 Rust tests and 7/7 TypeScript tests
 
-> **Status:** MVP core implemented and tested. The repository is not production-ready and has not been audited.
+> Current MVP accounting is intentionally simplified 1:1 raw-amount accounting. Production NAV-based share pricing, portfolio-backed redemption, automated rebalancing, and audited production deployment are future work.
 
 ---
 
+## Experimental integrations
+
+These integrations are isolated, read-only prototypes and do not change the Core MVP accounting model.
+
+### Pyth Basket Pricing Preview
+
+`experiments/pyth-nav-preview/`
+
+Multi-asset pricing preview using:
+
+- TSLA — 35%
+- QQQ — 30%
+- VOO — 25%
+- XAU — 10%
+
+Pyth market prices are used to calculate target values and target asset quantities. This is a pricing preview, not production NAV.
+
+### PreStocks Pre-IPO Basket Preview
+
+`experiments/prestocks-basket-preview/`
+
+Pre-IPO basket prototype using:
+
+- OPENAI — 35%
+- ANTHROPIC — 30%
+- FIGUREAI — 20%
+- KALSHI — 15%
+
+The prototype uses live PreStocks API data and real Solana mint addresses.
+
+**PreStocks Demo Video:** https://youtu.be/57ix4yjqBdg
+
+---
 ## Why Stocklana?
 
 Tokenized equities and other real-world assets can exist as individual Solana tokens, but users often want diversified exposure rather than managing many positions manually.
