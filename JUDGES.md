@@ -81,6 +81,39 @@ Explorer:
 
 https://explorer.solana.com/tx/4puXzwtF8Xg2vnsvVq7efLi2D4dobFAKfMkUCCDxWz737qQMAiEBPDoEgZGsqknSih2UEUVwwabMdX7WdEGnJ43D?cluster=devnet
 
+## Fresh-wallet / incognito verification
+
+The complete public jury path was repeated from a new Phantom account in a
+clean incognito browser session.
+
+Initial balances:
+
+- Circle Devnet USDC: `0.00`
+- Stocklana basket shares: `0.00`
+
+After funding the account with Devnet SOL and Circle Devnet USDC:
+
+- Circle Devnet USDC: `20.00 -> 19.00`
+- Stocklana basket shares: `0.00 -> 1.00`
+- UI status: `Live Devnet deposit confirmed`
+
+Finalized fresh-wallet Devnet transaction:
+
+`2t5ByBvLi3DJMDZTv6VCSZw5Qqxo6dFvVLKwjHDcEwGef9oYYE4niwomH6bhQ81ZGy3dRvaE5CEW1gaKVTaQkTYF`
+
+Explorer:
+
+https://explorer.solana.com/tx/2t5ByBvLi3DJMDZTv6VCSZw5Qqxo6dFvVLKwjHDcEwGef9oYYE4niwomH6bhQ81ZGy3dRvaE5CEW1gaKVTaQkTYF?cluster=devnet
+
+Verified:
+
+- Status: **Success**
+- Confirmation: **Finalized**
+- Slot: `502,530,583`
+
+This verifies the full public path from zero balances through funding,
+deposit, basket-share receipt, balance refresh, and Explorer confirmation.
+
 ## Core MVP
 
 The Anchor program currently supports:
