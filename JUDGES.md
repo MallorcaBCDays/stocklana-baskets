@@ -11,6 +11,30 @@
 
 ## Live Devnet proof
 
+### Jury setup — Solana Devnet only
+
+The demo provides two separate proof paths:
+
+- **Jury Demo:** replays a verified local Anchor run and submits no transaction.
+- **Live Devnet Proof:** connects a real wallet and submits a real Devnet `depositAndMint` transaction.
+
+Before using the Live Devnet Proof:
+
+1. Use Phantom and switch the wallet to **Solana Devnet**.
+2. Get Devnet SOL for transaction fees: https://faucet.solana.com/
+3. Get at least 1 Circle Devnet USDC: https://faucet.circle.com/
+4. In the Circle faucet, select **Solana Devnet** and enter the wallet address.
+
+Permanent Devnet identifiers:
+
+- Circle Devnet USDC mint: `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`
+- Basket PDA: `2DiKcr2mudaw9KpJ1PzjGzS3XbCCfMvUsSKMteAWmN5N`
+- Basket share mint: `4Du3IzrcLU5nQMDjouBUApDYyjHBH2eazU2aC4GqTTYC`
+
+No mainnet assets are involved. Current deposit accounting is simplified
+1:1 raw amount accounting; production NAV pricing and portfolio-backed
+settlement are not implemented yet.
+
 Stocklana is deployed on Solana Devnet and the wallet flow has been executed from the browser with Phantom.
 
 Verified flow:

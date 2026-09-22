@@ -285,6 +285,51 @@ export default function LiveDevnetDeposit() {
         </div>
       </div>
 
+      <div className="mt-5 rounded-2xl border border-cyan-300/10 bg-black/20 p-4">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200/70">
+          Fresh-wallet setup
+        </div>
+
+        <ol className="mt-3 space-y-2 text-sm leading-6 text-white/55">
+          <li>
+            1. Switch Phantom to <strong className="text-white/75">Solana Devnet</strong>.
+          </li>
+          <li>
+            2. Get Devnet SOL for fees:{" "}
+            <a
+              href="https://faucet.solana.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-cyan-300/80 transition hover:text-cyan-200"
+            >
+              Solana faucet ↗
+            </a>
+          </li>
+          <li>
+            3. Get at least 1 Circle Devnet USDC:{" "}
+            <a
+              href="https://faucet.circle.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-cyan-300/80 transition hover:text-cyan-200"
+            >
+              Circle faucet ↗
+            </a>
+          </li>
+        </ol>
+
+        <div className="mt-3 rounded-xl border border-white/5 bg-white/[0.025] px-3 py-2 text-xs">
+          <span className="text-white/35">Circle Devnet USDC mint</span>
+          <code className="mt-1 block break-all text-white/55">
+            4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU
+          </code>
+        </div>
+
+        <p className="mt-3 text-xs leading-5 text-amber-100/55">
+          Test assets only. Never send mainnet SOL or mainnet USDC to this demo.
+        </p>
+      </div>
+
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <div className="text-[11px] uppercase tracking-[0.14em] text-white/30">
