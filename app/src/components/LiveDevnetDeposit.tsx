@@ -356,6 +356,75 @@ export default function LiveDevnetDeposit() {
         </div>
       </div>
 
+      <section
+        aria-labelledby="live-allocation-preview"
+        className="mt-5 rounded-2xl border border-fuchsia-300/10 bg-fuchsia-300/[0.025] p-4"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-fuchsia-200/70">
+              Target allocation
+            </div>
+            <h3
+              id="live-allocation-preview"
+              className="mt-1 text-sm font-semibold text-white/85"
+            >
+              1 USDC deposit preview
+            </h3>
+          </div>
+
+          <div className="rounded-full border border-fuchsia-300/15 bg-fuchsia-300/5 px-3 py-1 text-[11px] font-medium text-fuchsia-200/65">
+            40 / 25 / 20 / 15
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          {DEVNET_WALLET_DEMO.weightsBps.map((weightBps, index) => {
+            const mint =
+              DEVNET_WALLET_DEMO.constituents[index]?.toBase58() ??
+              "Unavailable";
+            const weightPercent = weightBps / 100;
+            const targetUsdc = (weightBps / 10_000).toFixed(2);
+
+            return (
+              <div
+                key={mint}
+                className="rounded-xl border border-white/5 bg-black/20 px-3 py-3"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-xs font-medium text-white/70">
+                    Constituent {index + 1}
+                  </div>
+                  <div className="text-xs font-semibold text-fuchsia-200/75">
+                    {weightPercent}%
+                  </div>
+                </div>
+
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/5">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-fuchsia-400/70 to-cyan-300/70"
+                    style={{ width: `${weightPercent}%` }}
+                  />
+                </div>
+
+                <div className="mt-2 flex items-center justify-between gap-3 text-[11px]">
+                  <code className="text-white/30" title={mint}>
+                    {mint.slice(0, 4)}...{mint.slice(-4)}
+                  </code>
+                  <span className="text-white/50">{targetUsdc} USDC target</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <p className="mt-3 text-xs leading-5 text-white/40">
+          Preview only. The current deposit mints one basket share 1:1; it
+          does not yet execute constituent swaps or portfolio-backed
+          settlement.
+        </p>
+      </section>
+
       <div className="mt-5 rounded-2xl border border-amber-300/10 bg-amber-300/[0.025] px-4 py-3 text-xs leading-5 text-amber-100/55">
         MVP accounting is currently 1:1: depositing 1 USDC mints
         1 basket share. Production NAV-based pricing and
