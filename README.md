@@ -7,11 +7,12 @@ Stocklana Baskets is an Anchor-based protocol for transparent weighted baskets o
 ## Start here
 
 - **Interactive Demo:** https://demo.stocklanabaskets.com
+- **Judges Guide:** [JUDGES.md](JUDGES.md)
 - **Website:** https://stocklanabaskets.com
 - **Main Demo Video:** https://youtu.be/jh5KlkgHirs
 - **GitHub:** https://github.com/MallorcaBCDays/stocklana-baskets
 
-> The interactive web demo does not submit new transactions. It replays and visualizes results from a verified successful run of the Stocklana Anchor program against a local Solana validator.
+> The interactive demo has two proof paths: the **Jury Demo** replays a verified local Anchor run and does not submit new transactions, while the **Live Devnet Proof** can connect a wallet and execute a real `depositAndMint` transaction against the deployed Stocklana program on Solana Devnet.
 
 ## Program ID
 
