@@ -38,6 +38,25 @@ https://explorer.solana.com/tx/34nZzjP3bQ2qwBYFuxewa87uaqgYMhrue3u6SgeKJkChY2iiD
 
 The transaction is finalized successfully on Solana Devnet.
 
+## Live-domain wallet verification
+
+The wallet flow was also executed successfully after deployment on:
+
+https://demo.stocklanabaskets.com
+
+Verified live-demo balance change:
+
+- Circle Devnet USDC: `19.00 -> 18.00`
+- Stocklana basket shares: `1.00 -> 2.00`
+
+Finalized Devnet transaction:
+
+`4puXzwtF8Xg2vnsvVq7efLi2D4dobFAKfMkUCCDxWz737qQMAiEBPDoEgZGsqknSih2UEUVwwabMdX7WdEGnJ43D`
+
+Explorer:
+
+https://explorer.solana.com/tx/4puXzwtF8Xg2vnsvVq7efLi2D4dobFAKfMkUCCDxWz737qQMAiEBPDoEgZGsqknSih2UEUVwwabMdX7WdEGnJ43D?cluster=devnet
+
 ## Core MVP
 
 The Anchor program currently supports:
