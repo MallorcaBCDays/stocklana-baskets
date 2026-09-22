@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { VerifiedLocalProof } from "@/components/VerifiedLocalProof";
 import { RunJuryDemo } from "@/components/RunJuryDemo";
+import DevnetWalletButton from "@/components/DevnetWalletButton";
+import LiveDevnetDeposit from "@/components/LiveDevnetDeposit";
 import {
   deriveBasketInfrastructure,
   STOCKLANA_PROGRAM_ID,
@@ -145,9 +147,12 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="flex flex-wrap items-center justify-end gap-3">
           <div className="rounded-full border border-fuchsia-400/25 bg-fuchsia-400/10 px-3 py-1.5 text-xs text-fuchsia-200">
             MVP · Demo mode
           </div>
+          <DevnetWalletButton />
+        </div>
         </header>
 
         <section className="mb-8 max-w-3xl">
@@ -167,6 +172,10 @@ export default function Home() {
 
         <div className="mb-6">
           <RunJuryDemo />
+      </div>
+
+      <div className="mb-6">
+        <LiveDevnetDeposit />
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)_320px]">
@@ -392,7 +401,7 @@ export default function Home() {
               disabled
               className="w-full cursor-not-allowed rounded-xl bg-gradient-to-r from-fuchsia-500/40 to-cyan-400/40 px-4 py-4 text-sm font-semibold text-white/50"
             >
-              On-chain execution comes next
+              Production NAV + portfolio-backed settlement comes next
             </button>
           </aside>
         </div>
