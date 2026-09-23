@@ -22,6 +22,7 @@ type Constituent = {
 };
 
 const PRESTOCKS_PRICING_AS_OF = "2026-09-23T00:19:29Z";
+const PYTH_PRICING_AS_OF = "2026-09-23T15:31:12Z";
 
 type Basket = {
   id: string;
@@ -57,10 +58,10 @@ const BASKETS: Basket[] = [
     story: "Equities, ETFs and gold using the Stocklana Pyth pricing prototype.",
     source: "Pyth pricing prototype",
     constituents: [
-      { symbol: "TSLA", name: "Tesla", weightBps: 3500 },
-      { symbol: "QQQ", name: "Nasdaq-100 ETF", weightBps: 3000 },
-      { symbol: "VOO", name: "S&P 500 ETF", weightBps: 2500 },
-      { symbol: "XAU", name: "Gold", weightBps: 1000 },
+      { symbol: "TSLA", name: "Tesla", weightBps: 3500, tokenPrice: 380.48, targetUnitsAt100: 0.091989 },
+      { symbol: "QQQ", name: "Nasdaq-100 ETF", weightBps: 3000, tokenPrice: 741.29, targetUnitsAt100: 0.040470 },
+      { symbol: "VOO", name: "S&P 500 ETF", weightBps: 2500, tokenPrice: 708.60, targetUnitsAt100: 0.035281 },
+      { symbol: "XAU", name: "Gold", weightBps: 1000, tokenPrice: 4283.77, targetUnitsAt100: 0.002334 },
     ],
   },
   {
@@ -428,6 +429,106 @@ export default function Home() {
             </div>
           )}
 
+
+          {basket.id === "multi-asset" && (
+            <div className="mt-6 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.04] p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200/70">
+                    Pyth multi-asset pricing snapshot
+                  </div>
+                  <div className="mt-1 text-xs text-white/40">
+                    Verified via Pyth Hermes ·{" "}
+                    <span className="font-mono text-white/60">
+                      {PYTH_PRICING_AS_OF.replace("T", " ").replace("Z", " UTC")}
+                    </span>
+                  </div>
+                </div>
+                <span className="w-fit rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-cyan-100/70">
+                  Read-only pricing prototype
+                </span>
+              </div>
+
+              <p className="mt-3 text-xs leading-5 text-white/40">
+                Target quantities use verified Pyth prices. This snapshot is
+                indicative only and does not provide production NAV accounting,
+                execution, rebalancing, or portfolio-backed settlement.
+              </p>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {basket.constituents.map((asset) => {
+                  const targetValue =
+                    amount * (asset.weightBps / 10_000);
+                  const targetUnits =
+                    asset.targetUnitsAt100 !== undefined
+                      ? (amount / 100) * asset.targetUnitsAt100
+                      : asset.tokenPrice
+                        ? targetValue / asset.tokenPrice
+                        : 0;
+
+                  return (
+                    <div
+                      key={`pyth-${asset.symbol}`}
+                      className="rounded-xl border border-white/[0.07] bg-black/20 p-3"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <span className="font-mono font-semibold text-white">
+                            {asset.symbol}
+                          </span>
+                          <span className="ml-2 text-xs text-white/35">
+                            {asset.name}
+                          </span>
+                        </div>
+                        <span className="font-mono text-xs text-cyan-100/70">
+                          {(asset.weightBps / 100).toFixed(0)}%
+                        </span>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-3 gap-3 text-xs">
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wide text-white/25">
+                            Pyth price
+                          </div>
+                          <div className="mt-1 font-mono text-white/65">
+                            {money(asset.tokenPrice ?? 0)}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wide text-white/25">
+                            Target value
+                          </div>
+                          <div className="mt-1 font-mono text-cyan-200/80">
+                            {money(targetValue)}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wide text-white/25">
+                            Target units
+                          </div>
+                          <div className="mt-1 font-mono text-cyan-200/80">
+                            {targetUnits.toFixed(6)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 flex flex-col gap-2 border-t border-white/[0.07] pt-3 text-[11px] text-white/35 sm:flex-row sm:items-center sm:justify-between">
+                <span>Pyth Hermes snapshot · core accounting unchanged</span>
+                <a
+                  href="https://github.com/MallorcaBCDays/stocklana-baskets/tree/main/experiments/pyth-nav-preview"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-fit text-cyan-200/65 transition hover:text-cyan-200"
+                >
+                  View experiment ↗
+                </a>
+              </div>
+            </div>
+          )}
 
             <div className="mt-6 space-y-2 rounded-xl border border-amber-300/15 bg-amber-300/[0.04] p-4 text-xs leading-5 text-amber-100/60">
               <p>
