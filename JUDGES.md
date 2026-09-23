@@ -170,6 +170,17 @@ Local cloned-validator tests reached Jupiter and external DEX programs. Reliable
 
 Read-only prototype showing Stocklana as an oracle-agnostic basket protocol with Pyth as the first pricing adapter.
 
+In the live demo, select **Multi-Asset Mix** to inspect the verified Pyth Hermes snapshot captured at `2026-09-23T15:31:12Z`:
+
+- TSLA: `$380.48`, 35% target, `0.091989` target units
+- QQQ: `$741.29`, 30% target, `0.040470` target units
+- VOO: `$708.60`, 25% target, `0.035281` target units
+- XAU: `$4,283.77`, 10% target, `0.002334` target units
+
+The screen explicitly identifies this as read-only indicative pricing. It does not claim production NAV accounting, execution, rebalancing, or portfolio-backed settlement.
+
+Experiment: `experiments/pyth-nav-preview/`
+
 Video:
 
 https://youtu.be/IEbl-2HDGFE
@@ -177,6 +188,12 @@ https://youtu.be/IEbl-2HDGFE
 ### PreStocks basket preview
 
 Read-only prototype exploring programmable pre-IPO baskets using PreStocks data.
+
+In the live demo, select **AI + Markets Index** to inspect the verified PreStocks API snapshot captured at `2026-09-23T00:19:29Z`. The UI displays basket weights, token prices, mark prices, target values, target units, and the Solana mint address for each constituent.
+
+The snapshot is clearly separated from the current simplified 1:1 MVP accounting and is not presented as a live browser price feed or portfolio-backed settlement.
+
+Experiment: `experiments/prestocks-basket-preview/`
 
 Video:
 
