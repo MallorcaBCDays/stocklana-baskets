@@ -8,7 +8,7 @@
 
 ## 2. Short Project Description
 
-**Stocklana Baskets is a Solana protocol for creating weighted on-chain index baskets of tokenized assets. Each basket has transparent constituent weights, a fungible basket-share mint, deterministic custody vaults, deposit and redemption flows, and on-chain allocation logic. Stocklana also integrates Jupiter through CPI for basket execution, while the current MVP keeps accounting intentionally simple and focuses on proving the core index-basket architecture.**
+**Stocklana Baskets is a Solana protocol for creating weighted on-chain index baskets of tokenized assets. Each basket has transparent constituent weights, deterministic custody vaults, a fungible basket-share mint, deposit and redemption flows, and on-chain allocation logic. The live demo includes a verified local Anchor replay, a real `depositAndMint` transaction on Solana Devnet, and read-only PreStocks and Pyth pricing snapshots. The current MVP intentionally keeps accounting simple while proving the core index-basket architecture.**
 
 ---
 
@@ -32,7 +32,7 @@
 
 ## 6. Technical implementation / What did you build?
 
-**The MVP is implemented as an Anchor program on Solana with deterministic PDAs for basket state, basket-share minting, stablecoin custody, and constituent vaults. It includes weighted allocation math, deposit/mint and redeem/withdraw flows, constituent-vault initialization, Jupiter CPI integration with signer handling via `invoke_signed`, support for Jupiter V1/V2 route discriminators, and post-swap balance checks. The project is covered by Rust and TypeScript tests and includes a dedicated jury demo script for the stable end-to-end MVP flow.**
+**The MVP is implemented as an Anchor program on Solana with deterministic PDAs for basket state, basket-share minting, stablecoin custody, and constituent vaults. It includes weighted allocation math, deposit/mint and redeem/withdraw flows, constituent-vault initialization, Jupiter CPI integration with signer handling through `invoke_signed`, support for Jupiter V1/V2 route discriminators, and post-swap balance checks. The project includes Rust and TypeScript tests, a reproducible jury replay, a deployed Solana Devnet `depositAndMint` flow, and isolated read-only pricing prototypes using PreStocks API data and Pyth Hermes feeds.**
 
 ---
 
@@ -44,13 +44,13 @@
 
 ## 8. Current status / What is complete today?
 
-**The simplified MVP core is complete and tested: basket creation, weighted allocation logic, deterministic constituent vaults, basket-share minting, deposit and redemption flows, Jupiter CPI plumbing, and post-swap safety checks are implemented. The current MVP intentionally uses simplified 1:1 accounting and is not yet production-ready. The next phase is focused on real NAV accounting, oracle-based pricing, portfolio-backed redemption, rebalancing, stronger security controls, and validated public-cluster execution.**
+**The simplified MVP core is complete and tested: basket creation, weighted allocation logic, deterministic constituent vaults, basket-share minting, deposit and redemption flows, Jupiter CPI plumbing, and post-swap safety checks are implemented. The public demo provides both a reproducible verified Anchor replay and a real wallet-signed `depositAndMint` transaction against the deployed Stocklana program on Solana Devnet. Read-only PreStocks and Pyth integrations demonstrate asset metadata, prices, and target-quantity calculations without changing the core accounting model. The MVP still uses simplified 1:1 accounting and is not production-ready.**
 
 ---
 
 ## 9. Roadmap / What comes next?
 
-**The next phase is to turn the current MVP architecture into a production-grade basket protocol. Priorities include real portfolio NAV accounting, oracle-based pricing, portfolio-backed redemption, rebalancing, stronger slippage and MEV protections, governance and emergency controls, adversarial testing and audits, and validated execution on a public Solana cluster. Real tokenized-asset integrations such as xStocks are part of that production roadmap.**
+**The next phase is to turn the current MVP architecture into a production-grade basket protocol. Priorities include portfolio-backed NAV accounting, production oracle adapters building on the verified Pyth prototype, portfolio-backed redemption, automated rebalancing, stronger slippage and MEV protections, governance and emergency controls, adversarial testing and audits, and validated execution on a public Solana cluster. The PreStocks prototype also provides a concrete path toward programmable private-market and pre-IPO basket products.**
 
 ---
 
@@ -62,4 +62,4 @@
 
 ## 11. Submission Summary / Elevator Pitch
 
-**Stocklana Baskets turns diversified tokenized-asset portfolios into a transparent, programmable on-chain primitive on Solana. The MVP already demonstrates weighted basket creation, deterministic custody, fungible basket shares, deposit and redemption flows, on-chain allocation logic, and Jupiter-powered execution plumbing. The current focus is a clear, tested MVP architecture that can evolve into production-grade index products with real NAV accounting, oracle pricing, rebalancing, and live tokenized-asset integrations.**
+**Stocklana Baskets turns diversified tokenized-asset portfolios into a transparent, programmable on-chain primitive on Solana. The MVP demonstrates weighted basket creation, deterministic custody, fungible basket shares, deposit and redemption flows, on-chain allocation logic, and Jupiter CPI execution plumbing. A real wallet-signed Devnet transaction proves the deployed deposit path, while read-only PreStocks and Pyth prototypes show how the architecture extends to private-market assets and oracle-priced multi-asset baskets. The current 1:1 accounting model is deliberately limited; production NAV accounting, portfolio-backed settlement, rebalancing, and audits are the next phase.**
