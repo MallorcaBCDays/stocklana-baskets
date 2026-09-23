@@ -15,7 +15,13 @@ type Constituent = {
   symbol: string;
   name: string;
   weightBps: number;
+  tokenPrice?: number;
+  markPrice?: number;
+  targetUnitsAt100?: number;
+  mint?: string;
 };
+
+const PRESTOCKS_PRICING_AS_OF = "2026-09-23T00:19:29Z";
 
 type Basket = {
   id: string;
@@ -38,10 +44,10 @@ const BASKETS: Basket[] = [
     story: "Pre-IPO exposure using the Stocklana PreStocks prototype.",
     source: "PreStocks prototype",
     constituents: [
-      { symbol: "OPENAI", name: "OpenAI", weightBps: 3500 },
-      { symbol: "ANTHROPIC", name: "Anthropic", weightBps: 3000 },
-      { symbol: "FIGUREAI", name: "Figure AI", weightBps: 2000 },
-      { symbol: "KALSHI", name: "Kalshi", weightBps: 1500 },
+      { symbol: "OPENAI", name: "OpenAI", weightBps: 3500, tokenPrice: 1202.80, markPrice: 1013.40, targetUnitsAt100: 0.029099, mint: "PreweJYECqtQwBtpxHL171nL2K6umo692gTm7Q3rpgF" },
+      { symbol: "ANTHROPIC", name: "Anthropic", weightBps: 3000, tokenPrice: 1032.93, markPrice: 1050.42, targetUnitsAt100: 0.029044, mint: "Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw" },
+      { symbol: "FIGUREAI", name: "Figure AI", weightBps: 2000, tokenPrice: 181.14, markPrice: 181.82, targetUnitsAt100: 0.110409, mint: "PreZad18gfPtbxNpMtMuAuX2zVpvkEU8DnJx56faCWd" },
+      { symbol: "KALSHI", name: "Kalshi", weightBps: 1500, tokenPrice: 886.95, markPrice: 886.22, targetUnitsAt100: 0.016912, mint: "PreLWGkkeqG1s4HEfFZSy9moCrJ7btsHuUtfcCeoRua" },
     ],
   },
   {
@@ -302,6 +308,126 @@ export default function Home() {
               <span className="text-white/35">Total allocation</span>
               <span className="font-mono text-white">{money(amount)}</span>
             </div>
+          {basket.id === "ai-markets" && (
+            <div className="mt-6 rounded-2xl border border-fuchsia-400/20 bg-fuchsia-400/[0.04] p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-fuchsia-200/70">
+                    PreStocks pricing snapshot
+                  </div>
+                  <div className="mt-1 text-xs text-white/40">
+                    Verified via PreStocks API ·{" "}
+                    <span className="font-mono text-white/60">
+                      {PRESTOCKS_PRICING_AS_OF.replace("T", " ").replace("Z", " UTC")}
+                    </span>
+                  </div>
+                </div>
+                <span className="w-fit rounded-full border border-fuchsia-400/25 bg-fuchsia-400/10 px-3 py-1 text-[10px] uppercase tracking-[0.14em] text-fuchsia-200/70">
+                  Read-only prototype
+                </span>
+              </div>
+
+              <p className="mt-3 text-xs leading-5 text-white/40">
+                Target units use tokenPrice. markPrice is reference only.
+                This is a verified snapshot, not a live browser price feed.
+              </p>
+
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {basket.constituents.map((asset) => {
+                  const targetValue =
+                    amount * (asset.weightBps / 10_000);
+                  const targetUnits =
+                    asset.targetUnitsAt100 !== undefined
+                      ? (amount / 100) * asset.targetUnitsAt100
+                      : asset.tokenPrice
+                        ? targetValue / asset.tokenPrice
+                        : 0;
+
+                  return (
+                    <div
+                      key={`prestocks-${asset.symbol}`}
+                      className="rounded-xl border border-white/[0.07] bg-black/20 p-3"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <span className="font-mono font-semibold text-white">
+                            {asset.symbol}
+                          </span>
+                          <span className="ml-2 text-xs text-white/35">
+                            {asset.name}
+                          </span>
+                        </div>
+                        <span className="font-mono text-xs text-fuchsia-200/70">
+                          {(asset.weightBps / 100).toFixed(0)}%
+                        </span>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wide text-white/25">
+                            Token price
+                          </div>
+                          <div className="mt-1 font-mono text-white/65">
+                            {money(asset.tokenPrice ?? 0)}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wide text-white/25">
+                            Mark price
+                          </div>
+                          <div className="mt-1 font-mono text-white/65">
+                            {money(asset.markPrice ?? 0)}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wide text-white/25">
+                            Target value
+                          </div>
+                          <div className="mt-1 font-mono text-cyan-200/80">
+                            {money(targetValue)}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase tracking-wide text-white/25">
+                            Target units
+                          </div>
+                          <div className="mt-1 font-mono text-cyan-200/80">
+                            {targetUnits.toFixed(6)}
+                          </div>
+                        </div>
+                      </div>
+
+                      {asset.mint && (
+                        <button
+                          type="button"
+                          title={asset.mint}
+                          onClick={() =>
+                            navigator.clipboard?.writeText(asset.mint ?? "")
+                          }
+                          className="mt-3 block max-w-full truncate font-mono text-[10px] text-white/30 transition hover:text-cyan-200"
+                        >
+                          Mint: {asset.mint}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 flex flex-col gap-2 border-t border-white/[0.07] pt-3 text-[11px] text-white/35 sm:flex-row sm:items-center sm:justify-between">
+                <span>PreStocks API snapshot · core accounting unchanged</span>
+                <a
+                  href="https://youtu.be/57ix4yjqBdg"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-fit text-fuchsia-200/65 transition hover:text-fuchsia-200"
+                >
+                  Prototype video ↗
+                </a>
+              </div>
+            </div>
+          )}
+
 
             <div className="mt-6 space-y-2 rounded-xl border border-amber-300/15 bg-amber-300/[0.04] p-4 text-xs leading-5 text-amber-100/60">
               <p>
