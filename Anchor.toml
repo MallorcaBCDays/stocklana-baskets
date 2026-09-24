@@ -12,6 +12,6 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "npm run test"
+test = "npm run test:ts"
 
 [hooks]
