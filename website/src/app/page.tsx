@@ -1,6 +1,8 @@
 const demoUrl = "https://youtu.be/jh5KlkgHirs";
 const githubUrl = "https://github.com/MallorcaBCDays/stocklana-baskets";
 const interactiveDemoUrl = "https://demo.stocklanabaskets.com";
+const devnetProofUrl =
+  "https://explorer.solana.com/tx/2t5ByBvLi3DJMDZTv6VCSZw5Qqxo6dFvVLKwjHDcEwGef9oYYE4niwomH6bhQ81ZGy3dRvaE5CEW1gaKVTaQkTYF?cluster=devnet";
 
 export default function Home() {
   return (
@@ -54,7 +56,7 @@ export default function Home() {
           <p className="mt-7 max-w-2xl text-base leading-7 text-white/60 sm:text-lg">
             Stocklana Baskets turns weighted portfolios into transparent,
             programmable on-chain primitives with deterministic custody,
-            fungible basket shares, pricing adapters, and Jupiter-powered execution.
+            fungible basket shares, pricing adapters, and a Jupiter CPI path verified on a local validator.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -77,11 +79,15 @@ export default function Home() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/40">
-            <span>Core MVP</span>
+            <a href={devnetProofUrl} target="_blank" rel="noreferrer" className="transition hover:text-white/70">
+              <span className="text-white/70">Live:</span> Devnet deposit
+            </a>
             <span>•</span>
-            <span>Pyth pricing preview</span>
+            <span><span className="text-white/70">Demonstrated:</span> local Anchor run and Jupiter CPI path</span>
             <span>•</span>
-            <span>PreStocks prototype</span>
+            <span><span className="text-white/70">Experimental:</span> PreStocks and Pyth pricing</span>
+            <span>•</span>
+            <span><span className="text-white/70">Next:</span> NAV accounting</span>
           </div>
         </div>
 
@@ -92,6 +98,7 @@ export default function Home() {
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-white/35">Sample basket</p>
                 <h2 className="mt-2 text-xl font-semibold">AI + Markets Index</h2>
+                <p className="mt-1 text-xs text-white/45">Read-only PreStocks-powered pre-IPO basket preview</p>
               </div>
               <div className="rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1 text-xs text-cyan-200">
                 100%
@@ -131,7 +138,7 @@ export default function Home() {
               </div>
               <div className="rounded-2xl bg-white/[0.035] p-3">
                 <p className="text-lg font-semibold">Jupiter</p>
-                <p className="mt-1 text-[11px] uppercase tracking-wider text-white/35">Execution</p>
+                <p className="mt-1 text-[11px] uppercase tracking-wider text-white/35">CPI path (local)</p>
               </div>
             </div>
           </div>
@@ -155,7 +162,7 @@ export default function Home() {
             ["01", "Create", "Define a basket with up to 10 tokenized assets and target weights totaling 100%."],
             ["02", "Deposit", "Deposit the basket input asset into deterministic protocol-controlled custody."],
             ["03", "Mint", "Receive fungible basket shares representing participation in the basket."],
-            ["04", "Allocate", "Preview weighted allocations and route execution through Jupiter using basket PDA authority."],
+            ["04", "Allocate", "Preview weighted allocations on-chain. The Jupiter CPI path, signed by the basket PDA, is verified on a local validator."],
           ].map(([number, title, copy]) => (
             <div
               key={number}
@@ -183,7 +190,8 @@ export default function Home() {
             </h2>
             <p className="mt-5 max-w-xl text-base leading-7 text-white/55">
               The Stocklana MVP proves the core on-chain architecture required for programmable
-              index baskets on Solana.
+              index baskets on Solana. The deposit flow runs live on Solana Devnet against the
+              deployed program.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -193,6 +201,14 @@ export default function Home() {
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70">
                 7/7 TypeScript tests
               </span>
+              <a
+                href={devnetProofUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full border border-cyan-300/20 bg-cyan-300/5 px-4 py-2 text-sm text-cyan-100 transition hover:border-cyan-300/40"
+              >
+                Live Devnet deposit
+              </a>
             </div>
 
             <a
@@ -212,7 +228,7 @@ export default function Home() {
               ["Deterministic custody", "PDA-based custody and constituent vault architecture."],
               ["Deposit & redemption", "Tested minting and withdrawal lifecycle."],
               ["Allocation logic", "On-chain weighted allocation calculations."],
-              ["Jupiter execution", "CPI execution architecture using basket PDA authority."],
+              ["Jupiter CPI path", "Stocklana → Jupiter → DEX program path reached on a local validator. Full DEX settlement is not claimed."],
             ].map(([title, copy]) => (
               <div key={title} className="rounded-3xl border border-white/10 bg-white/[0.035] p-6">
                 <h3 className="text-base font-semibold text-white/90">{title}</h3>
@@ -225,7 +241,7 @@ export default function Home() {
 
       <section id="prototypes" className="relative z-10 mx-auto max-w-7xl px-6 py-24 lg:px-8">
         <div className="max-w-3xl">
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-cyan-300/80">Live prototypes</p>
+          <p className="text-xs font-medium uppercase tracking-[0.22em] text-cyan-300/80">Experimental prototypes</p>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
             Pricing and tokenized-asset integrations, without hard-coding the core.
           </h2>
@@ -289,17 +305,17 @@ export default function Home() {
           <article className="rounded-[2rem] border border-cyan-300/15 bg-gradient-to-br from-cyan-400/[0.08] via-white/[0.03] to-transparent p-7 sm:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-200/70">Tokenized private markets</p>
-                <h3 className="mt-3 text-2xl font-semibold">PreStocks pre-IPO basket prototype</h3>
+                <p className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-200/70">Read-only PreStocks-powered pre-IPO basket preview</p>
+                <h3 className="mt-3 text-2xl font-semibold">AI + Markets Index</h3>
               </div>
               <span className="rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1 text-xs text-cyan-100">
-                Live API data
+                Read-only
               </span>
             </div>
 
             <p className="mt-5 max-w-xl text-sm leading-6 text-white/50">
-              Stocklana combines weighted basket logic with PreStocks token prices, mark prices and real Solana mint addresses
-              to model diversified on-chain pre-IPO exposure.
+              The AI + Markets Index combines Stocklana weighted basket logic with PreStocks token prices, mark prices
+              and real Solana mint addresses to model diversified on-chain pre-IPO exposure.
             </p>
 
             <div className="mt-7 space-y-4">
@@ -403,7 +419,7 @@ export default function Home() {
               <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.035] p-5">
                 <p className="text-xs uppercase tracking-[0.16em] text-cyan-200/70">Execution layer</p>
                 <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/65">
-                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Jupiter CPI</span>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Jupiter CPI (verified locally)</span>
                   <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Solana DEXs</span>
                 </div>
               </div>
@@ -426,7 +442,7 @@ export default function Home() {
 
         <div className="mt-12 grid gap-4 lg:grid-cols-5">
           {[
-            ["Now", "Core MVP", "Basket creation, custody, shares, allocation logic, deposit/redemption and Jupiter CPI architecture."],
+            ["Now", "Core MVP", "Basket creation, custody, shares, allocation logic, deposit/redemption, a live Devnet deposit and a locally verified Jupiter CPI path."],
             ["Next", "Real NAV", "Actual constituent balances × verified market prices → basket NAV and share price."],
             ["Next", "Rebalancing", "Detect allocation drift and calculate the trades required to restore target weights."],
             ["Next", "Execution", "Production-grade execution with stronger slippage, MEV, settlement and safety controls."],
@@ -613,7 +629,8 @@ export default function Home() {
             <p>© 2026 Stocklana Baskets. Built on Solana.</p>
             <div className="flex gap-5">
               <a href={githubUrl} target="_blank" rel="noreferrer" className="transition hover:text-white/70">GitHub</a>
-              <a href={demoUrl} target="_blank" rel="noreferrer" className="transition hover:text-white/70">Demo</a>
+              <a href={interactiveDemoUrl} target="_blank" rel="noreferrer" className="transition hover:text-white/70">Interactive demo</a>
+              <a href={demoUrl} target="_blank" rel="noreferrer" className="transition hover:text-white/70">Video</a>
             </div>
           </div>
         </div>

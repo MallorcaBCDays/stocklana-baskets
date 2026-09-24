@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Stocklana Baskets | Programmable On-Chain Index Baskets",
   description:
-    "Programmable on-chain index baskets for tokenized assets on Solana. Weighted baskets, fungible shares, deterministic custody, pricing adapters and Jupiter-powered execution.",
+    "Programmable on-chain index baskets for tokenized assets on Solana. Weighted baskets, fungible shares, deterministic custody, a live Devnet deposit flow and a locally verified Jupiter CPI path.",
   metadataBase: new URL("https://stocklanabaskets.com"),
   openGraph: {
     title: "Stocklana Baskets",
