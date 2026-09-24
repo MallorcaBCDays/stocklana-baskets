@@ -6,9 +6,9 @@ Show the stable, reproducible Stocklana MVP flow live without depending on fragi
 
 ## Opening
 
-> Stocklana Baskets lets users create weighted on-chain index baskets of tokenized assets on Solana. Each basket has transparent constituents and weights, its own basket shares, deterministic custody vaults, and Jupiter-powered execution.
+> Stocklana Baskets lets users create weighted on-chain index baskets of tokenized assets on Solana. Each basket has transparent constituents and weights, its own basket shares, deterministic custody vaults, and a Jupiter CPI path verified on a local validator.
 
-> For this demo, I’ll show the deterministic core flow live, and then briefly show how the Jupiter execution path connects the basket to external liquidity.
+> For this demo, I’ll show the deterministic core flow live, and then briefly show how the locally verified Jupiter CPI path reaches external DEX programs.
 
 ## Live demo command
 
@@ -62,9 +62,9 @@ Expected result:
 
 ### 8. Jupiter execution path
 
-> Stocklana also implements Jupiter CPI execution plumbing for basket swaps.
+> Stocklana also implements a Jupiter CPI path for basket swaps.
 
-> We verified the execution path from Stocklana into Jupiter and onward into external DEX programs.
+> On a local validator, we verified the path from Stocklana into Jupiter and onward into external DEX programs. It has not been executed on a public cluster.
 
 > For the live jury demo, we intentionally do not depend on full DEX settlement on cloned localnet state, because production DEXes can depend on live pool state, slots, oracle state, liquidity state, and other dynamic mainnet conditions.
 
@@ -72,7 +72,7 @@ Expected result:
 
 Safe claim:
 
-> Stocklana successfully constructs and executes the real CPI path into Jupiter, and Jupiter reaches external DEX programs.
+> On a local validator, Stocklana successfully constructs and executes the real CPI path into Jupiter, and Jupiter reaches external DEX programs.
 
 Do not claim:
 
@@ -80,7 +80,7 @@ Do not claim:
 
 ## Closing
 
-> Stocklana Baskets provides a programmable on-chain index primitive on Solana: transparent weights, deterministic custody, fungible basket shares, deposit and redemption flows, weighted allocation logic, and Jupiter-powered execution.
+> Stocklana Baskets provides a programmable on-chain index primitive on Solana: transparent weights, deterministic custody, fungible basket shares, deposit and redemption flows, weighted allocation logic, and a Jupiter CPI path verified on a local validator.
 
 ## Demo checklist
 

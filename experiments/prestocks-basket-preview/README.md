@@ -1,4 +1,4 @@
-# Stocklana — PreStocks Pre-IPO Basket Preview
+# Stocklana — AI + Markets Index: a read-only PreStocks-powered pre-IPO basket preview
 
 This directory contains an isolated proof-of-concept for using live PreStocks market data with Stocklana Baskets.
 
@@ -13,7 +13,7 @@ The prototype demonstrates how Stocklana can combine:
 3. real Solana mint addresses
 4. target allocation calculations
 
-to model a programmable pre-IPO basket.
+to model the AI + Markets Index, a read-only PreStocks-powered pre-IPO basket preview.
 
 ## Demo Basket
 
@@ -125,7 +125,7 @@ The existing Stocklana MVP proves the core on-chain basket architecture:
 - deterministic custody
 - deposit and redemption flows
 - allocation logic
-- Jupiter execution plumbing
+- a Jupiter CPI path verified on a local validator
 
 This PreStocks prototype shows how that architecture can be extended toward weighted baskets of tokenized pre-IPO exposure using live asset metadata, prices, and Solana mint addresses.
 

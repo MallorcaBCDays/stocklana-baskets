@@ -2,7 +2,9 @@
 
 **Programmable on-chain index baskets for tokenized assets on Solana.**
 
-Stocklana Baskets is an Anchor-based protocol for transparent weighted baskets of tokenized assets with deterministic custody, fungible basket shares, weighted allocation logic, and Jupiter-powered execution infrastructure.
+Stocklana Baskets is an Anchor-based protocol for transparent weighted baskets of tokenized assets with deterministic custody, fungible basket shares, weighted allocation logic, and a Jupiter CPI path verified on a local validator.
+
+**Featured use case:** the **AI + Markets Index**, a read-only PreStocks-powered pre-IPO basket preview (OpenAI 35%, Anthropic 30%, Figure AI 20%, Kalshi 15%). It prices the basket from PreStocks data; basket shares are not backed by these tokens. The protocol itself stays asset-agnostic.
 
 ## Start here
 
@@ -10,6 +12,7 @@ Stocklana Baskets is an Anchor-based protocol for transparent weighted baskets o
 - **Judges Guide:** [JUDGES.md](JUDGES.md)
 - **Website:** https://stocklanabaskets.com
 - **Main Demo Video:** https://youtu.be/jh5KlkgHirs
+- **Devnet proof (fresh wallet):** https://explorer.solana.com/tx/2t5ByBvLi3DJMDZTv6VCSZw5Qqxo6dFvVLKwjHDcEwGef9oYYE4niwomH6bhQ81ZGy3dRvaE5CEW1gaKVTaQkTYF?cluster=devnet
 - **GitHub:** https://github.com/MallorcaBCDays/stocklana-baskets
 
 > The interactive demo has two proof paths: the **Jury Demo** replays a verified local Anchor run and does not submit new transactions, while the **Live Devnet Proof** can connect a wallet and execute a real `depositAndMint` transaction against the deployed Stocklana program on Solana Devnet.
@@ -18,14 +21,28 @@ Stocklana Baskets is an Anchor-based protocol for transparent weighted baskets o
 
 `5p7G79qSFHWFKiqK2LjeMLFWpPPATNxBroZnv8Do3QZB`
 
+Deployed on Solana Devnet; the same program ID is used for local development.
+
+Explorer (Devnet): https://explorer.solana.com/address/5p7G79qSFHWFKiqK2LjeMLFWpPPATNxBroZnv8Do3QZB?cluster=devnet
+
+Devnet accounts of the live demo basket:
+
+| Account | Address |
+| --- | --- |
+| Basket PDA | `2DiKcr2mudaw9KpJ1PzJGzS3XbCCfMvUsSKMteAWmN5N` |
+| Basket share mint | `4Du31zrcLU5nQMDjouBUApDYyjHBH2eazU2aC4GqTTYC` |
+| Stablecoin vault | `CBdEneZiAj4jbKQPBpc9K2Aj6yzpQXPaoRVCzH9oiRUu` |
+| Circle Devnet USDC mint | `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` |
+
 ## Core MVP
 
 - 1–10 weighted constituents
 - deterministic Basket PDA and custody vaults
 - dedicated basket share mint
 - deposit and redemption lifecycle
+- live `depositAndMint` on Solana Devnet
 - weighted allocation previews
-- Jupiter CPI execution plumbing
+- Jupiter CPI path, verified on a local validator (full DEX settlement not claimed)
 - 7/7 Rust tests and 7/7 TypeScript tests
 
 > Current MVP accounting is intentionally simplified 1:1 raw-amount accounting. Production NAV-based share pricing, portfolio-backed redemption, automated rebalancing, and audited production deployment are future work.
@@ -49,18 +66,18 @@ Multi-asset pricing preview using:
 
 Pyth market prices are used to calculate target values and target asset quantities. This is a pricing preview, not production NAV.
 
-### PreStocks Pre-IPO Basket Preview
+### AI + Markets Index — a read-only PreStocks-powered pre-IPO basket preview
 
 `experiments/prestocks-basket-preview/`
 
-Pre-IPO basket prototype using:
+Basket weights:
 
 - OPENAI — 35%
 - ANTHROPIC — 30%
 - FIGUREAI — 20%
 - KALSHI — 15%
 
-The prototype uses live PreStocks API data and real Solana mint addresses.
+The prototype script reads live PreStocks API data and real Solana mint addresses. The interactive demo shows a verified snapshot of that data.
 
 **PreStocks Demo Video:** https://youtu.be/57ix4yjqBdg
 
@@ -130,6 +147,8 @@ Basket Share Mint                  Input / Stablecoin Vault
 ```
 
 The basket PDA acts as the on-chain authority for basket-controlled token accounts.
+
+The Jupiter branch of this diagram has been verified on a local validator up to external DEX programs. It has not been executed on a public cluster; the Devnet deployment covers deposit and minting.
 
 ---
 
@@ -229,7 +248,7 @@ Validates:
 
 `execute_constituent_swap(...)`
 
-Stocklana can construct and invoke Jupiter swap instructions through CPI.
+Stocklana can construct and invoke Jupiter swap instructions through CPI. This path is verified on a local validator (see *Localnet limitation* below).
 
 The program currently validates:
 
@@ -256,7 +275,7 @@ For the inner Jupiter CPI, the basket PDA is promoted to signer and signed with 
 
 ## Jupiter Integration
 
-Stocklana uses Jupiter as the execution layer rather than implementing DEX-specific routing itself.
+Stocklana is designed to use Jupiter as its execution layer rather than implementing DEX-specific routing itself. All Jupiter results below come from a local validator with cloned mainnet state.
 
 The local integration harness:
 
@@ -443,9 +462,9 @@ anchor program deploy target/deploy/basket_vault.so
 
 ---
 
-## Program ID
+## Program ID and redeployment
 
-Current local development program ID:
+The same program ID is used on Solana Devnet and for local development:
 
 ```text
 5p7G79qSFHWFKiqK2LjeMLFWpPPATNxBroZnv8Do3QZB
@@ -459,16 +478,21 @@ If the program is redeployed under a new keypair or to another cluster, update t
 
 ```text
 .
-├── programs/
-│   └── basket-vault/
-│       ├── Cargo.toml
-│       └── src/
-│           └── lib.rs
+├── programs/basket-vault/          Anchor program (src/lib.rs)
+├── tests/basket-vault.ts           Anchor / TypeScript integration tests
 ├── scripts/
+│   ├── demo.ts                     local jury demo flow
+│   ├── devnet-smoke.ts             Devnet deposit smoke test
+│   ├── setup-wallet-demo.ts        Devnet wallet-demo basket setup
 │   ├── jupiter-swap.ts
-│   └── jupiter-e2e.ts
-├── tests/
-│   └── basket-vault.ts
+│   └── jupiter-e2e.ts              local Jupiter CPI harness
+├── app/                            interactive demo (demo.stocklanabaskets.com)
+├── website/                        landing page (stocklanabaskets.com)
+├── experiments/
+│   ├── prestocks-basket-preview/   AI + Markets Index pricing (read-only)
+│   └── pyth-nav-preview/           Pyth pricing preview (read-only)
+├── docs/                           submission texts, jury demo script
+├── JUDGES.md
 ├── Anchor.toml
 ├── Cargo.toml
 ├── package.json
@@ -531,10 +555,10 @@ Important limitations include:
 - share minting is still based on a simplified 1:1 raw-token model
 - redemption currently returns the input/stablecoin asset rather than unwinding an invested portfolio
 - no production NAV calculation
-- no oracle-based pricing system
+- no on-chain oracle integration (Pyth and PreStocks pricing are read-only off-chain prototypes)
 - no automated rebalancing
 - no management or performance fee system
-- no live xStock constituent list is hardcoded into the protocol
+- no constituent asset list is hardcoded into the protocol
 - no production slippage policy beyond `minimum_out`
 - no MEV protection layer
 - no governance system
@@ -542,6 +566,7 @@ Important limitations include:
 - no formal security audit
 - no production mainnet deployment process
 - full external DEX execution is not guaranteed to reproduce on cloned localnet state
+- Jupiter CPI has not been executed on a public cluster; the Devnet deployment covers deposit and minting
 
 These are intentionally separated from the MVP core.
 
@@ -575,8 +600,8 @@ A production version would likely add:
 8. **Operational controls**  
    Upgrade policy, pause controls, monitoring and incident procedures.
 
-9. **Frontend**  
-   Basket discovery, composition display, allocation preview, deposit, redemption and portfolio analytics.
+9. **Basket Builder**
+   A user-facing interface for creating, discovering and managing baskets, extending the current interactive demo with redemption and portfolio analytics.
 
 ---
 
@@ -596,7 +621,7 @@ Recommended sequence:
 7. Redeem part of the shares
 8. Show balances after redemption
 9. Show the Jupiter integration code / E2E route planner
-10. Explain the verified Stocklana -> Jupiter -> DEX CPI path
+10. Explain the locally verified Stocklana -> Jupiter -> DEX CPI path
 ```
 
 This demonstrates the complete basket lifecycle while keeping the live demo reproducible.
@@ -615,7 +640,7 @@ The MVP proves the core mechanics required for a future tokenized-equity index p
 - fungible basket shares
 - deposit / redemption lifecycle
 - allocation math
-- Jupiter-powered execution architecture
+- Jupiter CPI path verified on a local validator
 - PDA-controlled external CPI
 - route and balance safety checks
 

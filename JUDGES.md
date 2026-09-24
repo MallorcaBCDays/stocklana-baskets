@@ -2,12 +2,15 @@
 
 **Programmable on-chain index baskets for tokenized assets on Solana.**
 
+Featured use case: the **AI + Markets Index**, a read-only PreStocks-powered pre-IPO basket preview.
+
 ## Start here
 
 - Interactive demo: https://demo.stocklanabaskets.com
 - Website: https://stocklanabaskets.com
 - Main demo video: https://youtu.be/jh5KlkgHirs
 - Program ID: `5p7G79qSFHWFKiqK2LjeMLFWpPPATNxBroZnv8Do3QZB`
+- Program on Devnet Explorer: https://explorer.solana.com/address/5p7G79qSFHWFKiqK2LjeMLFWpPPATNxBroZnv8Do3QZB?cluster=devnet
 
 ## Live Devnet proof
 
@@ -28,8 +31,9 @@ Before using the Live Devnet Proof:
 Permanent Devnet identifiers:
 
 - Circle Devnet USDC mint: `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`
-- Basket PDA: `2DiKcr2mudaw9KpJ1PzjGzS3XbCCfMvUsSKMteAWmN5N`
-- Basket share mint: `4Du3IzrcLU5nQMDjouBUApDYyjHBH2eazU2aC4GqTTYC`
+- Basket PDA: `2DiKcr2mudaw9KpJ1PzJGzS3XbCCfMvUsSKMteAWmN5N`
+- Basket share mint: `4Du31zrcLU5nQMDjouBUApDYyjHBH2eazU2aC4GqTTYC`
+- Stablecoin vault: `CBdEneZiAj4jbKQPBpc9K2Aj6yzpQXPaoRVCzH9oiRUu`
 
 No mainnet assets are involved. Current deposit accounting is simplified
 1:1 raw amount accounting; production NAV pricing and portfolio-backed
@@ -127,7 +131,7 @@ The Anchor program currently supports:
 - `depositAndMint`
 - `redeemAndWithdraw`
 - weighted allocation preview
-- Jupiter CPI execution infrastructure
+- Jupiter CPI path, verified on a local validator
 
 Verified test status:
 
@@ -154,15 +158,15 @@ Also not yet production-ready:
 
 The UI states these limitations explicitly.
 
-## Jupiter execution
+## Jupiter CPI path (local validator only)
 
 Stocklana contains real Jupiter CPI infrastructure.
 
-Verified execution path:
+Locally verified CPI path:
 
 `Stocklana -> Jupiter -> external DEX program`
 
-Local cloned-validator tests reached Jupiter and external DEX programs. Reliable full external DEX settlement is not claimed for the cloned local-validator environment.
+Local cloned-validator tests reached Jupiter and external DEX programs. Reliable full external DEX settlement is not claimed for the cloned local-validator environment. Jupiter CPI has not been executed on Devnet or mainnet.
 
 ## Experimental integrations
 
@@ -185,9 +189,9 @@ Video:
 
 https://youtu.be/IEbl-2HDGFE
 
-### PreStocks basket preview
+### AI + Markets Index — a read-only PreStocks-powered pre-IPO basket preview
 
-Read-only prototype exploring programmable pre-IPO baskets using PreStocks data.
+Weights: OpenAI 35%, Anthropic 30%, Figure AI 20%, Kalshi 15%. The preview prices the basket from PreStocks data; basket shares are not backed by these tokens.
 
 In the live demo, select **AI + Markets Index** to inspect the verified PreStocks API snapshot captured at `2026-09-23T00:19:29Z`. The UI displays basket weights, token prices, mark prices, target values, target units, and the Solana mint address for each constituent.
 
